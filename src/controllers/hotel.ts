@@ -15,7 +15,7 @@ export const listHotels = async (ctx: Context) => {
   ctx.body = hotels
 }
 
-// GET /hotel/:id
+// GET /hotels/:id
 export const getHotel = async (ctx: Context) => {
   const { id } = ctx.params
   const db = await getDb()
@@ -32,4 +32,33 @@ export const getHotel = async (ctx: Context) => {
     hotel._id = hotel._id.toString()
   }
   ctx.body = hotel
+}
+
+// POST /hotels   (operator only)
+export const createHotel = async (ctx: Context) => {
+  const data = ctx.request.body as Hotel
+  const db = await getDb()
+  const result = await db.collection<Hotel>('hotels').insertOne(data)
+  ctx.status = 201
+  ctx.body = { id: result.insertedId }
+}
+
+// PUT /hotels/:id
+export const updateHotel = async (ctx: Context) => {
+  const { id } = ctx.params
+  const db = await getDb()
+  await db
+    .collection<Hotel>('hotels')
+    .updateOne({ _id: new ObjectId(id) }, { $set: ctx.request.body as Partial<Hotel> })
+  ctx.body = { msg: 'update' }
+}
+
+// DELETE /hotels/:id
+export const deleteHotel = async (ctx: Context) => {
+  const { id } = ctx.params
+  const db = await getDb()
+  await db
+    .collection<Hotel>('hotels')
+    .deleteOne({ _id: new ObjectId(id) })
+  ctx.status = 204
 }

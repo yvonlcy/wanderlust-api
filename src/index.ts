@@ -6,6 +6,7 @@ import bodyParser from 'koa-bodyparser'
 import health from './routes/health'
 import { PORT } from './config/env'
 import authRouter from './routes/auth'
+import hotelRouter from './routes/hotel'
 
 const app = new Koa()
 const router = new Router()
@@ -21,6 +22,7 @@ app.use(bodyParser())
 app.use(health.routes()).use(health.allowedMethods())
 app.use(authRouter.routes()).use(authRouter.allowedMethods())
 app.use(router.routes()).use(router.allowedMethods())
+app.use(hotelRouter.routes()).use(hotelRouter.allowedMethods())
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
