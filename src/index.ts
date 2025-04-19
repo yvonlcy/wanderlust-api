@@ -7,6 +7,9 @@ import health from './routes/health'
 import { PORT } from './config/env'
 import authRouter from './routes/auth'
 import hotelRouter from './routes/hotel'
+// eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-commonjs
+const swaggerUi = require('koa2-swagger-ui')
+import { swaggerSpec } from './config/swagger'
 
 const app = new Koa()
 const router = new Router()
@@ -19,9 +22,17 @@ app.use(json())
 app.use(logger())
 app.use(bodyParser())
 
+// Swagger UI
+app.use(
+  swaggerUi.koaSwagger({
+    routePrefix: '/docs',   // http://localhost:3000/docs
+    swaggerOptions: { spec: swaggerSpec },
+  }),
+)
+
 app.use(health.routes()).use(health.allowedMethods())
 app.use(authRouter.routes()).use(authRouter.allowedMethods())
-app.use(router.routes()).use(router.allowedMethods())
+//app.use(router.routes()).use(router.allowedMethods())
 app.use(hotelRouter.routes()).use(hotelRouter.allowedMethods())
 
 app.listen(PORT, () => {

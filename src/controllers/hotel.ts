@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb'
 
 // GET /hotels?city=Hong%20Kong&star=5
 export const listHotels = async (ctx: Context) => {
+  console.log('DEBUG: GET /hotels called')
   const { city, star } = ctx.query
   const filter: { city?: string; star?: number } = {}
   if (city) filter.city = String(city)

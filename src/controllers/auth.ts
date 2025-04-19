@@ -33,11 +33,14 @@ export const register = async (ctx: Context) => {
 
   const hash = await bcrypt.hash(password, 10)
 
+  // if no role is provided, default to 'member'
+  const userRole = role ?? 'member'
+
   const result = await db.collection('users').insertOne({
     username,
     password: hash,
     email,
-    role,
+    role: userRole,
   })
 
   ctx.status = 201
