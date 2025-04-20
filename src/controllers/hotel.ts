@@ -4,16 +4,73 @@ import { Hotel } from '../models/hotel'
 import { ObjectId } from 'mongodb'
 
 // GET /hotels?city=Hong%20Kong&star=5
+/**
+ * @openapi
+ * /hotels:
+ *   get:
+ *     summary: List hotels
+ *     tags:
+ *       - Hotels
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: star
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Paginated hotel list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hotels:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Hotel'
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ */
 export const listHotels = async (ctx: Context) => {
   console.log('DEBUG: GET /hotels called')
-  const { city, star } = ctx.query
-  const filter: { city?: string; star?: number } = {}
-  if (city) filter.city = String(city)
-  if (star) filter.star = Number(star)
+  const { city, star, limit, page } = ctx.query;
+  const filter: { city?: string; star?: number } = {};
+  if (city) filter.city = String(city);
+  if (star) filter.star = Number(star);
 
-  const db = await getDb()
-  const hotels = await db.collection<Hotel>('hotels').find(filter).toArray()
-  ctx.body = hotels
+  // Pagination
+  let limitNum = Number(limit) || 20;
+  let pageNum = Number(page) || 1;
+  if (limitNum < 1 || limitNum > 100) limitNum = 20;
+  if (pageNum < 1) pageNum = 1;
+  const skip = (pageNum - 1) * limitNum;
+
+  const db = await getDb();
+  const collection = db.collection('hotels');
+  const total = await collection.countDocuments(filter);
+  const hotels = await collection.find(filter).skip(skip).limit(limitNum).toArray();
+  ctx.body = {
+    hotels,
+    total,
+    page: pageNum,
+    limit: limitNum
+  };
 }
 
 // GET /hotels/:id
@@ -23,7 +80,7 @@ export const getHotel = async (ctx: Context) => {
   let hotel = null
   try {
     hotel = await db
-      .collection<Hotel>('hotels')
+      .collection('hotels')
       .findOne({ _id: new ObjectId(id) })
   } catch {
     ctx.throw(400, 'Invalid hotel id')
@@ -39,7 +96,7 @@ export const getHotel = async (ctx: Context) => {
 export const createHotel = async (ctx: Context) => {
   const data = ctx.request.body as Hotel
   const db = await getDb()
-  const result = await db.collection<Hotel>('hotels').insertOne(data)
+  const result = await db.collection('hotels').insertOne(data)
   ctx.status = 201
   ctx.body = { id: result.insertedId }
 }
@@ -49,7 +106,7 @@ export const updateHotel = async (ctx: Context) => {
   const { id } = ctx.params
   const db = await getDb()
   await db
-    .collection<Hotel>('hotels')
+    .collection('hotels')
     .updateOne({ _id: new ObjectId(id) }, { $set: ctx.request.body as Partial<Hotel> })
   ctx.body = { msg: 'update' }
 }
@@ -59,7 +116,7 @@ export const deleteHotel = async (ctx: Context) => {
   const { id } = ctx.params
   const db = await getDb()
   await db
-    .collection<Hotel>('hotels')
+    .collection('hotels')
     .deleteOne({ _id: new ObjectId(id) })
   ctx.status = 204
 }

@@ -1,20 +1,16 @@
-import { MongoClient, Db } from 'mongodb'
-import { MONGODB_URI } from '../config/env'
+import mongoose, { Connection } from 'mongoose';
 
-let client: MongoClient
-let db: Db
-
-export const getDb = async (): Promise<Db> => {
-  if (db) return db
-
-  client = new MongoClient(MONGODB_URI as string)
-  await client.connect()
-  db = client.db()
-  console.log('🔗 MongoDB connected')
-  return db
-}
+export const getDb = async (): Promise<any> => {
+  if (mongoose.connection.readyState !== 1) {
+    // Not connected, try to connect
+    await mongoose.connect(process.env.MONGODB_URI || '', {
+      // useNewUrlParser: true, useUnifiedTopology: true // not needed in mongoose >= 6
+    });
+  }
+  return mongoose.connection.db;
+};
 
 export const closeDb = async () => {
-  await client?.close()
-  db = undefined as unknown as Db
+  await mongoose.connection.close();
 }
+

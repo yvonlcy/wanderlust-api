@@ -1,8 +1,6 @@
-> **⚠️ This project is currently a work in progress and serves as a template/backup. Core features and documentation are not yet complete.**
-
 # Wanderlust Travel API
 
-A modern, secure, and fully documented RESTful API for the Wanderlust Travel Agency, built with Node.js, TypeScript, Koa, and MongoDB. This API serves as the backend for a React Single Page Application (SPA), enabling hotel and flight management, user authentication, and seamless integration with external travel data providers.
+A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, TypeScript, Koa, and MongoDB.
 
 ---
 
@@ -60,6 +58,29 @@ Wanderlust Travel is a new agency aiming to provide customers with a seamless pl
 
 ---
 
+## Project Structure
+
+- `src/` — Application source code (controllers, routes, middleware, services)
+- `test/` — Automated tests (Jest + Supertest + mongodb-memory-server)
+- `openapi.yaml` — API documentation (served at `/docs`)
+- `package.json` — Scripts and dependencies
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root with at least:
+
+```
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+SIGNUP_CODE=your_operator_signup_code
+PORT=3000
+```
+> For testing, MongoDB is handled in-memory and does not require configuration.
+
+---
+
 ## Tech Stack
 
 - **Backend:** Node.js, TypeScript, Koa
@@ -102,6 +123,54 @@ Wanderlust Travel is a new agency aiming to provide customers with a seamless pl
 
 ---
 
+## Running the API
+
+```bash
+npm install
+npm run dev      # Start in development mode
+npm start        # Start in production mode
+```
+
+API is served on `http://localhost:3000` by default.
+
+---
+
+## Running Tests
+
+- Tests are located in the `test/` directory.
+- Run all tests with:
+
+```bash
+npm test
+```
+
+- Tests use an in-memory MongoDB instance (`mongodb-memory-server`), so no external DB setup is needed.
+
+---
+
+## API Endpoints
+
+| Method | Path                   | Description           |
+|--------|------------------------|-----------------------|
+| POST   | /api/auth/register     | Register user         |
+| POST   | /api/auth/login        | Login user            |
+| POST   | /api/members/register  | Register member       |
+| POST   | /api/operators/register| Register operator     |
+| GET    | /api/hotels            | List hotels           |
+| POST   | /api/hotels            | Create hotel (auth)   |
+| ...    | ...                    | ...                   |
+
+See full docs at [`/docs`](http://localhost:3000/docs).
+
+---
+
+## API Documentation
+
+- OpenAPI/Swagger UI is available at [`/docs`](http://localhost:3000/docs).
+- Import `openapi.yaml` into Postman for testing.
+
+---
+
 ## API Documentation & Testing
 
 - **API Docs:** The OpenAPI/Swagger specification is provided as `openapi.yaml` and is served at `/docs` (http://localhost:3000/docs) when the server is running.
@@ -134,11 +203,6 @@ echo "Your JWT token:"
 echo "$token"
 ```
 
-- **FAQ:**
-  - If the API returns HTML, check your request path and the order of Koa middleware registration.
-  - If login returns `Invalid username or password`, ensure you have registered that user first.
-  - If you want a 201 status code for creation, set `ctx.status = 201` in your controller.
-
 ---
 
 ## Submission
@@ -156,3 +220,15 @@ This project is for academic assessment purposes only.
 ---
 
 ### Good luck and happy coding!
+
+---
+
+## Contribution
+
+PRs and issues welcome! Please lint and test before submitting changes.
+
+---
+
+## License
+
+For academic/portfolio use only.

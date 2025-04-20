@@ -20,31 +20,52 @@ interface RegisterRequestBody {
   signUpCode?: string
 }
 
-export const register = async (ctx: Context) => {
-  const { username, password, email, role, signUpCode } = ctx.request.body as RegisterRequestBody
+type UserRole = 'member' | 'operator';
 
+export const register = async (ctx: Context) => {
+  console.log('DEBUG register input:', ctx.request.body);
+  try {
+    console.log('DEBUG register: entered try block');
+  const { username, password, email, role, signUpCode } = ctx.request.body as RegisterRequestBody;
+
+  // Validate signUpCode for operator
   if (role === 'operator' && signUpCode !== SIGNUP_CODE) {
-    ctx.throw(403, 'Invalid sign-up code')
+    console.log('DEBUG register: invalid sign-up code');
+    ctx.throw(403, 'Invalid sign-up code');
   }
 
-  const db = await getDb()
-  const exists = await db.collection('users').findOne({ username })
-  if (exists) ctx.throw(409, 'Username taken')
+  const db = await getDb();
+  console.log('DEBUG register: got db');
+  const exists = await db.collection('users').findOne({ username });
+  console.log('DEBUG register: checked existing user', exists);
+  if (exists) {
+    console.log('DEBUG register: username taken');
+    ctx.throw(409, 'Username taken');
+  }
 
-  const hash = await bcrypt.hash(password, 10)
+  const hash = await bcrypt.hash(password, 10);
+  console.log('DEBUG register: hashed password');
 
-  // if no role is provided, default to 'member'
-  const userRole = role ?? 'member'
+  // Only allow 'member' or 'operator' as role, default to 'member'
+  const allowedRoles: UserRole[] = ['member', 'operator'];
+  const userRole: UserRole = allowedRoles.includes(role) ? role : 'member';
+  console.log('DEBUG register: userRole', userRole);
 
   const result = await db.collection('users').insertOne({
     username,
     password: hash,
     email,
     role: userRole,
-  })
+  });
+  console.log('DEBUG register: inserted user', result.insertedId);
 
-  ctx.status = 201
-  ctx.body = { id: result.insertedId }
+  ctx.status = 201;
+  ctx.body = { id: result.insertedId };
+  console.log('DEBUG register success:', result.insertedId);
+  } catch (err) {
+    console.log('DEBUG register error:', err);
+    throw err;
+  }
 }
 
 interface LoginRequestBody {
