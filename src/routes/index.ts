@@ -5,6 +5,7 @@ import operator from './operator'
 import member from './member'
 import message from './message'
 import auth from './auth'
+import profile from './profile'
 
 const router = new Router({ prefix: '/api' })
 
@@ -14,5 +15,6 @@ router.use(operator.routes())
 router.use(member.routes())
 router.use(message.routes())
 router.use(auth.routes())
+router.use(profile.routes())
 
 export default router

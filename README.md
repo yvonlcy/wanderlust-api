@@ -144,6 +144,12 @@ API is served on `http://localhost:3000` by default.
 npm test
 ```
 
+- To check test coverage:
+
+```bash
+npm run test -- --coverage
+```
+
 - Tests use an in-memory MongoDB instance (`mongodb-memory-server`), so no external DB setup is needed.
 
 ---
@@ -154,6 +160,7 @@ npm test
 |--------|------------------------|-----------------------|
 | POST   | /api/auth/register     | Register user         |
 | POST   | /api/auth/login        | Login user            |
+| GET    | /api/profile           | Get current user's profile (JWT required) |
 | POST   | /api/members/register  | Register member       |
 | POST   | /api/operators/register| Register operator     |
 | GET    | /api/hotels            | List hotels           |
@@ -176,34 +183,13 @@ See full docs at [`/docs`](http://localhost:3000/docs).
 - **API Docs:** The OpenAPI/Swagger specification is provided as `openapi.yaml` and is served at `/docs` (http://localhost:3000/docs) when the server is running.
 - **Postman:** Import `openapi.yaml` directly into Postman to automatically generate a full API testing collection.
 - **JWT Workflow:**
-  1. Register a member/operator via `/members/register` or `/operators/register`.
-  2. Log in via `/members/login` or `/operators/login` to obtain a JWT token.
-  3. In Postman, set the Authorization tab to Bearer Token and paste the token to test protected endpoints.
-- **Automated Testing Script (Bash Example):**
+  1. Register a user via `/api/auth/register` (or `/members/register`, `/operators/register`).
+  2. Log in via `/api/auth/login` (or `/members/login`, `/operators/login`) to obtain a JWT token.
+  3. In Postman, set the Authorization tab to Bearer Token and paste the token to test protected endpoints (e.g., `/api/profile`).
 
-```bash
-#!/bin/bash
-register_response=$(curl -s -X POST http://localhost:3000/members/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass","email":"test@example.com"}')
-echo "$register_response"
-member_id=$(echo $register_response | grep -oP '"id"\s*:\s*"\K[^"]+')
-login_response=$(curl -s -X POST http://localhost:3000/members/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass"}')
-echo "$login_response"
-token=$(echo $login_response | grep -oP '"token"\s*:\s*"\K[^"]+')
-hotel_response=$(curl -s -X POST http://localhost:3000/hotels \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $token" \
-  -d '{"name":"My Hotel","star":5,"city":"Hong Kong","country":"Hong Kong","address":"Central"}')
-echo "$hotel_response"
-echo
-echo "Your JWT token:"
-echo "$token"
-```
+- **Protected Endpoint Example:**
+  - `GET /api/profile` requires a valid JWT. Returns current user's id and role. Returns 401 if token is missing or invalid.
 
----
 
 ## Submission
 
