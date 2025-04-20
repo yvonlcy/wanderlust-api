@@ -3,6 +3,8 @@ info:
   title: Wanderlust Travel API
   version: 1.0.0
   description: RESTful API for hotel management & booking
+servers:
+  - url: http://localhost:3000
 components:
   securitySchemes:
     bearerAuth:
@@ -28,27 +30,453 @@ components:
 security:
   - bearerAuth: []
 paths:
-  /hotels:
-    get:
+  /members/register:
+    post:
       tags:
-        - Hotel
-      summary: Get all hotels
-      parameters:
-        - in: query
-          name: city
-          schema:
-            type: string
-        - in: query
-          name: star
-          schema:
-            type: integer
+        - Member
+      summary: Register a new member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - email
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
       responses:
-        "200":
-          description: List of hotels
+        '201':
+          description: Member registered
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Hotel"
+                type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+  /members/login:
+    post:
+      tags:
+        - Member
+      summary: Login as a member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT token and user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+  /members/{id}/favourites:
+    post:
+      tags:
+        - Member
+      summary: Add a hotel to favourites
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - hotelId
+              properties:
+                hotelId:
+                  type: string
+      responses:
+        '200':
+          description: Added to favourites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    get:
+      tags:
+        - Member
+      summary: List all favourite hotels of a member
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of favourite hotel IDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      type: string
+  /members/{id}/favourites/{hotelId}:
+    delete:
+      tags:
+        - Member
+      summary: Remove a hotel from favourites
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: hotelId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Removed from favourites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /operators/register:
+    post:
+      tags:
+        - Operator
+      summary: Register a new operator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - email
+                - agency
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+                agency:
+                  type: string
+      responses:
+        '201':
+          description: Operator registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+  /operators/login:
+    post:
+      tags:
+        - Operator
+      summary: Login as an operator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT token and operator info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+
+  /hotels/{id}:
+    get:
+      tags:
+        - Hotel
+      summary: Get hotel by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Hotel detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hotel"
+    put:
+      tags:
+        - Hotel
+      summary: Update hotel (operator only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Hotel"
+      responses:
+        '200':
+          description: Hotel updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+    delete:
+      tags:
+        - Hotel
+      summary: Delete hotel (operator only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Hotel deleted
+  /members/{id}/upload-photo:
+    post:
+      tags:
+        - Member
+      summary: Upload member profile photo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /messages:
+    post:
+      tags:
+        - Message
+      summary: Send a message
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fromId
+                - toId
+                - content
+              properties:
+                fromId:
+                  type: string
+                toId:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+    get:
+      tags:
+        - Message
+      summary: List all messages for a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+  /messages/{id}/reply:
+    post:
+      tags:
+        - Message
+      summary: Reply to a message
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fromId
+                - content
+              properties:
+                fromId:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Reply sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /messages/{id}:
+    delete:
+      tags:
+        - Message
+      summary: Delete a message
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
 tags: []

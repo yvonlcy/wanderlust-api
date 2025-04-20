@@ -102,11 +102,42 @@ Wanderlust Travel is a new agency aiming to provide customers with a seamless pl
 
 ---
 
-## Documentation
+## API Documentation & Testing
 
-- **API Docs:** OpenAPI/Swagger spec included in `/docs` folder.
-- **Code Style:** Enforced by ESLint and Prettier config files.
-- **Demo Video:** [Add YouTube/Stream link here before submission]
+- **API Docs:** The OpenAPI/Swagger specification is provided as `openapi.yaml` and is served at `/docs` (http://localhost:3000/docs) when the server is running.
+- **Postman:** Import `openapi.yaml` directly into Postman to automatically generate a full API testing collection.
+- **JWT Workflow:**
+  1. Register a member/operator via `/members/register` or `/operators/register`.
+  2. Log in via `/members/login` or `/operators/login` to obtain a JWT token.
+  3. In Postman, set the Authorization tab to Bearer Token and paste the token to test protected endpoints.
+- **Automated Testing Script (Bash Example):**
+
+```bash
+#!/bin/bash
+register_response=$(curl -s -X POST http://localhost:3000/members/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"testpass","email":"test@example.com"}')
+echo "$register_response"
+member_id=$(echo $register_response | grep -oP '"id"\s*:\s*"\K[^"]+')
+login_response=$(curl -s -X POST http://localhost:3000/members/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"testpass"}')
+echo "$login_response"
+token=$(echo $login_response | grep -oP '"token"\s*:\s*"\K[^"]+')
+hotel_response=$(curl -s -X POST http://localhost:3000/hotels \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $token" \
+  -d '{"name":"My Hotel","star":5,"city":"Hong Kong","country":"Hong Kong","address":"Central"}')
+echo "$hotel_response"
+echo
+echo "Your JWT token:"
+echo "$token"
+```
+
+- **FAQ:**
+  - If the API returns HTML, check your request path and the order of Koa middleware registration.
+  - If login returns `Invalid username or password`, ensure you have registered that user first.
+  - If you want a 201 status code for creation, set `ctx.status = 201` in your controller.
 
 ---
 
