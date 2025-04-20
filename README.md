@@ -221,14 +221,3 @@ This project is for academic assessment purposes only.
 
 ### Good luck and happy coding!
 
----
-
-## Contribution
-
-PRs and issues welcome! Please lint and test before submitting changes.
-
----
-
-## License
-
-For academic/portfolio use only.
