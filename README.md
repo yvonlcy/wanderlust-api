@@ -195,6 +195,123 @@ See full docs at [`/docs`](http://localhost:3000/docs).
 - **Protected Endpoint Example:**
   - `GET /api/profile` requires a valid JWT. Returns current user's id and role. Returns 401 if token is missing or invalid.
 
+---
+
+## Using Postman to Test All API Endpoints
+
+Postman is a powerful tool for testing and exploring REST APIs. Follow these steps to test all endpoints of the Wanderlust API:
+
+### 1. Import the OpenAPI Spec
+- Open Postman.
+- Click **Import** (top left), then select the `openapi.yaml` file from this project.
+- Postman will automatically create a collection with all available endpoints.
+
+### 2. Set the Base URL
+- Ensure your API server is running locally (default: `http://localhost:3000`).
+- In Postman, set the collection's base URL variable to `http://localhost:3000` if prompted.
+
+### 3. Register and Log In
+- Use the **POST** `/api/members/register` or `/api/operators/register` endpoint to create a user.
+- Use the **POST** `/api/members/login` or `/api/operators/login` endpoint to log in.
+- Copy the `access` token (JWT) from the login response.
+
+### 4. Authorize Requests
+- For protected endpoints (e.g., `/api/profile`, `/api/hotels` for operators), click the **Authorization** tab in Postman.
+- Set type to **Bearer Token** and paste your JWT token.
+- Alternatively, set the Authorization header manually: `Authorization: Bearer <your-token>`.
+
+### 5. Test All Endpoints
+- Select any endpoint in the imported collection and click **Send**.
+- For endpoints that require a request body (e.g., creating hotels), use the **Body** tab (set to JSON) and provide the required fields.
+- For endpoints with URL parameters (e.g., `/api/hotels/:id`), fill in the parameter in the URL or Params tab.
+
+#### Sample JSON Bodies for Postman
+
+- **Register Member** (`POST /api/members/register`):
+  ```json
+  {
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "test1234"
+  }
+  ```
+
+- **Register Operator** (`POST /api/operators/register`):
+  ```json
+  {
+    "username": "operator1",
+    "email": "operator1@example.com",
+    "password": "operatorpass",
+    "agency": "Sample Agency",
+    "signupCode": "WL-AGENCY-2025"
+  }
+  ```
+  *The `signupCode` field is required and must match the value of `SIGNUP_CODE` in the `.env` file.*
+
+- **Login Member/Operator** (`POST /api/members/login` or `/api/operators/login`):
+  ```json
+  {
+    "username": "testuser",
+    "password": "test1234"
+  }
+  ```
+
+- **Send Message** (`POST /api/messages`):
+  ```json
+  {
+    "fromId": "<sender_user_id>",
+    "toId": "<recipient_user_id>",
+    "content": "Hello, this is a test message!"
+  }
+  ```
+  Replace `<sender_user_id>` and `<recipient_user_id>` with actual user IDs from your database or registration responses.
+
+- **Create Hotel** (`POST /api/hotels`): *(Requires operator authentication)*
+  ```json
+  {
+    "name": "Grand Plaza Hotel",
+    "city": "Hong Kong",
+    "star": 5,
+    "address": "123 Main St, Hong Kong",
+    "description": "A luxury hotel in the heart of the city.",
+    "photos": ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"]
+  }
+  ```
+
+- **Add to Favorites** (`POST /api/members/{id}/favourites`): *(Requires member authentication)*
+  ```json
+  {
+    "hotelId": "<hotel_id>"
+  }
+  ```
+  Replace `<hotel_id>` with the ID of the hotel you want to favorite.
+
+- **Remove from Favorites** (`DELETE /api/members/{id}/favourites/{hotelId}`): *(Requires member authentication)*
+  - No body required. Just send the request with the correct member and hotel IDs in the URL.
+
+- **Reply to Message** (`POST /api/messages/{id}/reply`): *(Requires authentication)*
+  ```json
+  {
+    "fromId": "<sender_user_id>",
+    "content": "This is a reply to your message."
+  }
+  ```
+  Replace `<sender_user_id>` with the user ID of the replier, and use the message ID in the URL.
+
+### 6. Explore Responses
+- View the full JSON response, status codes, and headers in Postman.
+- Use **Save Response** to document or share test results.
+
+### 7. Troubleshooting
+- If you get a 401 Unauthorized error, ensure your JWT is valid and set in the Authorization tab.
+- Use the `/api/health` endpoint to check if your API server is running.
+- Refer to the Swagger UI at [`/docs`](http://localhost:3000/docs) for detailed API documentation and example requests.
+
+---
+
+**Tip:** You can use Postman environments and variables to manage tokens and base URLs for easier repeated testing.
+
+---
 
 ## Submission
 
