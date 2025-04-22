@@ -212,19 +212,26 @@ This will show the individual status of each test case.
 
 ## API Endpoints
 
-| Method | Path                   | Description           |
-|--------|------------------------|-----------------------|
-| POST   | /api/auth/register     | Register user         |
-| POST   | /api/auth/login        | Login user            |
-| GET    | /api/profile           | Get current user's profile (JWT required) |
-| POST   | /api/members/register  | Register member       |
-| POST   | /api/operators/register| Register operator     |
-| GET    | /api/hotels            | List hotels           |
-| POST   | /api/hotels            | Create hotel (operator only)   |
-| GET    | /api/hotels/:id        | Get hotel by ID       |
-| PUT    | /api/hotels/:id        | Update hotel (operator only) |
-| DELETE | /api/hotels/:id        | Delete hotel (operator only) |
-| GET    | /api/health            | Health check          |
+| Method | Path                                         | Description                                 |
+|--------|----------------------------------------------|---------------------------------------------|
+| POST   | /api/members/register                        | Register a new member                       |
+| POST   | /api/members/login                           | Member login                                |
+| GET    | /api/members/{id}/favourites                 | List member's favorite hotels (auth)        |
+| POST   | /api/members/{id}/favourites                 | Add a hotel to favorites (auth)             |
+| DELETE | /api/members/{id}/favourites/{hotelId}       | Remove a hotel from favorites (auth)        |
+| POST   | /api/operators/register                      | Register a new operator (requires code)     |
+| POST   | /api/operators/login                         | Operator login                              |
+| GET    | /api/profile                                 | Get current user's profile (auth)           |
+| GET    | /api/hotels                                  | List all hotels                             |
+| POST   | /api/hotels                                  | Create hotel (operator only)                |
+| GET    | /api/hotels/{id}                             | Get hotel by ID                             |
+| PUT    | /api/hotels/{id}                             | Update hotel (operator only)                |
+| DELETE | /api/hotels/{id}                             | Delete hotel (operator only)                |
+| POST   | /api/messages                                | Send a message (auth)                       |
+| GET    | /api/messages                                | List messages for user (auth)               |
+| POST   | /api/messages/{id}/reply                     | Reply to a message (auth)                   |
+| DELETE | /api/messages/{id}                           | Delete a message (auth)                     |
+| GET    | /api/health                                  | Health check                                |
 
 See full docs at [`/docs`](http://localhost:3000/docs).
 
