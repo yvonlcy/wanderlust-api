@@ -4,6 +4,9 @@ import { auth } from '../middleware/auth'
 
 const router = new Router({ prefix: '/hotels' })
 
+// List all hotels
+router.get('/', listHotels)
+
 /**
  * @openapi
  * /hotels:

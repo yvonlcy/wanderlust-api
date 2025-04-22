@@ -75,8 +75,10 @@ Create a `.env` file in the project root with at least:
 JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 SIGNUP_CODE=your_operator_signup_code
+MONGODB_URI=your_mongodb_uri
 PORT=3000
 ```
+> For MongoDB Atlas, use the URI provided by the Atlas dashboard (starts with `mongodb+srv://...`). For local testing, you may use `mongodb://localhost:27017/wanderlust`.
 > For testing, MongoDB is handled in-memory and does not require configuration.
 
 ---
@@ -164,8 +166,11 @@ npm run test -- --coverage
 | POST   | /api/members/register  | Register member       |
 | POST   | /api/operators/register| Register operator     |
 | GET    | /api/hotels            | List hotels           |
-| POST   | /api/hotels            | Create hotel (auth)   |
-| ...    | ...                    | ...                   |
+| POST   | /api/hotels            | Create hotel (operator only)   |
+| GET    | /api/hotels/:id        | Get hotel by ID       |
+| PUT    | /api/hotels/:id        | Update hotel (operator only) |
+| DELETE | /api/hotels/:id        | Delete hotel (operator only) |
+| GET    | /api/health            | Health check          |
 
 See full docs at [`/docs`](http://localhost:3000/docs).
 
