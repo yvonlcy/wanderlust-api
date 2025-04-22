@@ -4,6 +4,27 @@ A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, T
 
 ---
 
+## Table of Contents
+
+- [Project Info](#project-info)
+- [Scenario](#scenario)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Running the API](#running-the-api)
+- [Running Tests](#running-tests)
+- [Testing Utilities](#test-utilities)
+- [Reading the Test Report](#reading-the-test-report)
+- [API Endpoints](#api-endpoints)
+- [API Documentation](#api-documentation)
+- [Using Postman to Test](#using-postman-to-test-all-api-endpoints)
+- [Common Troubleshooting & Error Solutions](#common-troubleshooting--error-solutions)
+- [License](#license)
+
+---
+
 ## Project Info
 
 **GitHub Repo:** [wanderlust-api](https://github.com/yvonlcy/wanderlust-api)
@@ -207,6 +228,78 @@ This will show the individual status of each test case.
 
 See full docs at [`/docs`](http://localhost:3000/docs).
 
+### Example Responses
+
+#### Register Operator (POST /api/operators/register)
+**Success:**
+```json
+{
+  "id": "60c7b9c2e1d3c2a1b8c0f123",
+  "message": "Operator registered"
+}
+```
+**Error (missing signupCode):**
+```json
+{
+  "error": "Invalid signup code"
+}
+```
+
+#### Login Operator (POST /api/operators/login)
+**Success:**
+```json
+{
+  "token": "<jwt_token>"
+}
+```
+**Error (wrong password):**
+```json
+{
+  "error": "Invalid username or password"
+}
+```
+
+#### Get Profile (GET /api/profile)
+**Success:**
+```json
+{
+  "id": "60c7b9c2e1d3c2a1b8c0f123",
+  "role": "operator",
+  "username": "apitestoperator",
+  "email": "apitestoperator@hk.com"
+}
+```
+**Error (no token):**
+```json
+{
+  "error": "Authentication Error"
+}
+```
+
+#### Create Hotel (POST /api/hotels)
+**Success:**
+```json
+{
+  "id": "60c7b9c2e1d3c2a1b8c0f456",
+  "name": "Hotel Name",
+  ...
+}
+```
+**Error (unauthorized):**
+```json
+{
+  "error": "Authentication Error"
+}
+```
+
+#### Health Check (GET /api/health)
+**Success:**
+```json
+{
+  "status": "ok"
+}
+```
+
 ---
 
 ## API Documentation
@@ -226,7 +319,7 @@ See full docs at [`/docs`](http://localhost:3000/docs).
   3. In Postman, set the Authorization tab to Bearer Token and paste the token to test protected endpoints (e.g., `/api/profile`).
 
 - **Protected Endpoint Example:**
-  - `GET /api/profile` requires a valid JWT. Returns current user's id and role. Returns 401 if token is missing or invalid.
+  - `GET http://localhost:3000/api/profile` requires a valid JWT. Returns current user's id and role. Returns 401 if token is missing or invalid.
 
 ---
 
@@ -244,12 +337,12 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
 - In Postman, set the collection's base URL variable to `http://localhost:3000` if prompted.
 
 ### 3. Register and Log In
-- Use the **POST** `/api/members/register` or `/api/operators/register` endpoint to create a user.
-- Use the **POST** `/api/members/login` or `/api/operators/login` endpoint to log in.
+- Use the **POST** `http://localhost:3000/api/members/register` or `http://localhost:3000/api/operators/register` endpoint to create a user.
+- Use the **POST** `http://localhost:3000/api/members/login` or `http://localhost:3000/api/operators/login` endpoint to log in.
 - Copy the `access` token (JWT) from the login response.
 
 ### 4. Authorize Requests
-- For protected endpoints (e.g., `/api/profile`, `/api/hotels` for operators), click the **Authorization** tab in Postman.
+- For protected endpoints (e.g., `http://localhost:3000/api/profile`, `http://localhost:3000/api/hotels` for operators), click the **Authorization** tab in Postman.
 - Set type to **Bearer Token** and paste your JWT token.
 - Alternatively, set the Authorization header manually: `Authorization: Bearer <your-token>`.
 
@@ -319,10 +412,10 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
   ```
   Replace `<hotel_id>` with the ID of the hotel you want to favorite.
 
-- **Remove from Favorites** (`DELETE /api/members/{id}/favourites/{hotelId}`): *(Requires member authentication)*
+- **Remove from Favorites** (`DELETE http://localhost:3000/api/members/{id}/favourites/{hotelId}`): *(Requires member authentication)*
   - No body required. Just send the request with the correct member and hotel IDs in the URL.
 
-- **Reply to Message** (`POST /api/messages/{id}/reply`): *(Requires authentication)*
+- **Reply to Message** (`POST http://localhost:3000/api/messages/{id}/reply`): *(Requires authentication)*
   ```json
   {
     "fromId": "<sender_user_id>",
@@ -338,6 +431,27 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
 ### 7. Troubleshooting
 - If you get a 401 Unauthorized error, ensure your JWT is valid and set in the Authorization tab.
 - Use the `/api/health` endpoint to check if your API server is running.
+
+---
+
+## Common Troubleshooting & Error Solutions
+
+- **401 Unauthorized / Authentication Error:**
+  - Ensure you are sending the correct JWT token in the Authorization header as `Bearer <token>`.
+  - If your token is expired, log in again to get a new one.
+  - Make sure you are not missing the `signupCode` when registering an operator.
+- **MongoDB Connection Errors:**
+  - For local development, ensure MongoDB is running (or use the default in-memory setup for tests).
+  - For Atlas, check your URI and network/firewall settings.
+- **Port in Use:**
+  - If you see an error about port 3000 in use, stop other processes or change the `PORT` in your `.env`.
+- **CORS Issues:**
+  - If calling from a browser, ensure CORS is enabled on the API server.
+- **Validation Errors:**
+  - Check that your request body matches the expected schema (see OpenAPI docs or examples above).
+- **General Debugging:**
+  - Use the `/api/health` endpoint to verify the server is running.
+  - Check the server logs for detailed error messages.
 - Refer to the Swagger UI at [`/docs`](http://localhost:3000/docs) for detailed API documentation and example requests.
 
 ---
