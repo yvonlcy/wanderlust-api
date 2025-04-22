@@ -1,1 +1,1 @@
-declare module 'swagger-ui-koa';
+declare module 'swagger-ui-koa'

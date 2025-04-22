@@ -19,9 +19,12 @@ export default defineConfig([
     plugins: {
       import: importPlugin,
     },
-    extends: ["plugin:import/recommended"],
     rules: {
-      // "import/no-commonjs": "off",
+      "import/export": "error",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "import/no-mutable-exports": "error",
     },
   },
 ]);

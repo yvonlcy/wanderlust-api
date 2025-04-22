@@ -7,7 +7,8 @@ interface JwtPayload {
   role: 'operator' | 'member'
 }
 
-export const auth = (roles: Array<'operator' | 'member'> = []) =>
+export const auth =
+  (roles: Array<'operator' | 'member'> = []) =>
   async (ctx: Context, next: Next) => {
     const header = ctx.headers.authorization
     if (!header?.startsWith('Bearer ')) ctx.throw(401, 'No token')
@@ -22,9 +23,3 @@ export const auth = (roles: Array<'operator' | 'member'> = []) =>
       ctx.throw(401, 'Invalid / expired token')
     }
   }
-
-        
-    
-
-
-

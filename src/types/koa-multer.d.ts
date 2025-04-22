@@ -1,25 +1,26 @@
 declare module '@koa/multer' {
-  import { Middleware } from 'koa';
+  import { Middleware } from 'koa'
+
   namespace multer {
     interface Multer {
-      single(fieldname: string): Middleware;
-      array(fieldname: string, maxCount?: number): Middleware;
+      single(fieldname: string): Middleware
+      array(fieldname: string, maxCount?: number): Middleware
       // ... add more as needed
     }
-    interface StorageEngine {}
+    type StorageEngine = object
     interface Options {
-      storage?: StorageEngine;
-      limits?: any;
-      fileFilter?: any;
+      storage?: StorageEngine
+      limits?: unknown
+      fileFilter?: unknown
     }
   }
-  function multer(options?: multer.Options): multer.Multer;
+  function multer(options?: multer.Options): multer.Multer
   namespace multer {
     function diskStorage(options: {
-      destination?: string | ((req: any, file: any, cb: any) => void);
-      filename?: (req: any, file: any, cb: any) => void;
-    }): StorageEngine;
+      destination?: string | ((req: unknown, file: unknown, cb: unknown) => void)
+      filename?: (req: unknown, file: unknown, cb: unknown) => void
+    }): StorageEngine
     // ... add more as needed
   }
-  export = multer;
+  export = multer
 }

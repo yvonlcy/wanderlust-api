@@ -5,10 +5,11 @@ import http from 'http';
 
 let server: http.Server;
 
+
 describe('Auth Flow', () => {
   beforeAll(async () => {
     await connect();
-    server = app.listen(); // listen on random port for Supertest
+    server = app.listen();
   });
   afterAll(async () => {
     await closeDatabase();
@@ -18,7 +19,7 @@ describe('Auth Flow', () => {
 
   it('should register user', async () => {
     const res = await request(server)
-      .post('/api/auth/register')
+      .post('/api/members/register')
       .send({ username: 'testuser', email: 'test@hk.com', password: '123456', role: 'member' });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
@@ -27,11 +28,11 @@ describe('Auth Flow', () => {
   it('should login user and return JWT', async () => {
     // Register first
     await request(server)
-      .post('/api/auth/register')
+      .post('/api/members/register')
       .send({ username: 'testuser', email: 'test@hk.com', password: '123456', role: 'member' });
     // Login
     const res = await request(server)
-      .post('/api/auth/login')
+      .post('/api/members/login')
       .send({ username: 'testuser', password: '123456' });
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('tokens');
@@ -45,11 +46,11 @@ describe('Auth Flow', () => {
   it('should not login with wrong password', async () => {
     // Register first
     await request(server)
-      .post('/api/auth/register')
+      .post('/api/members/register')
       .send({ username: 'testuser', email: 'test@hk.com', password: '123456', role: 'member' });
     // Wrong password
     const res = await request(server)
-      .post('/api/auth/login')
+      .post('/api/members/login')
       .send({ username: 'testuser', password: 'wrongpass' });
     expect(res.status).toBe(401);
   });
@@ -57,10 +58,10 @@ describe('Auth Flow', () => {
   it('should access protected /api/profile with JWT', async () => {
     // Register and login to get token
     await request(server)
-      .post('/api/auth/register')
+      .post('/api/members/register')
       .send({ username: 'testuser', email: 'test@hk.com', password: '123456', role: 'member' });
     const loginRes = await request(server)
-      .post('/api/auth/login')
+      .post('/api/members/login')
       .send({ username: 'testuser', password: '123456' });
     const token = loginRes.body.tokens.access;
     // Access protected route

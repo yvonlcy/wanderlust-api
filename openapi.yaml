@@ -30,7 +30,89 @@ components:
 security:
   - bearerAuth: []
 paths:
-  /members/register:
+
+
+  /api/profile:
+    get:
+      tags:
+        - User
+      summary: Get current user's profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  role:
+                    type: string
+  /api/hotels:
+    get:
+      tags:
+        - Hotel
+      summary: List hotels
+      responses:
+        '200':
+          description: List of hotels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hotels:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Hotel'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+    post:
+      tags:
+        - Hotel
+      summary: Create hotel (operator only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '201':
+          description: Hotel created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /api/members/register:
     post:
       tags:
         - Member
@@ -64,7 +146,7 @@ paths:
                     type: string
                   message:
                     type: string
-  /members/login:
+  /api/members/login:
     post:
       tags:
         - Member
@@ -102,7 +184,7 @@ paths:
                         type: string
                       email:
                         type: string
-  /members/{id}/favourites:
+  /api/members/{id}/favourites:
     post:
       tags:
         - Member
@@ -160,7 +242,7 @@ paths:
                     type: array
                     items:
                       type: string
-  /members/{id}/favourites/{hotelId}:
+  /api/members/{id}/favourites/{hotelId}:
     delete:
       tags:
         - Member
@@ -188,7 +270,7 @@ paths:
                 properties:
                   message:
                     type: string
-  /operators/register:
+  /api/operators/register:
     post:
       tags:
         - Operator
@@ -225,7 +307,7 @@ paths:
                     type: string
                   message:
                     type: string
-  /operators/login:
+  /api/operators/login:
     post:
       tags:
         - Operator
@@ -264,7 +346,7 @@ paths:
                       email:
                         type: string
 
-  /hotels/{id}:
+  /api/hotels/{id}:
     get:
       tags:
         - Hotel
@@ -325,7 +407,7 @@ paths:
       responses:
         '204':
           description: Hotel deleted
-  /members/{id}/upload-photo:
+  /api/members/{id}/upload-photo:
     post:
       tags:
         - Member
@@ -358,7 +440,7 @@ paths:
                 properties:
                   message:
                     type: string
-  /messages:
+  /api/messages:
     post:
       tags:
         - Message
@@ -418,7 +500,7 @@ paths:
                     type: array
                     items:
                       type: object
-  /messages/{id}/reply:
+  /api/messages/{id}/reply:
     post:
       tags:
         - Message
@@ -455,7 +537,7 @@ paths:
                 properties:
                   message:
                     type: string
-  /messages/{id}:
+  /api/messages/{id}:
     delete:
       tags:
         - Message

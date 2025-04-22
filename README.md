@@ -154,6 +154,39 @@ npm run test -- --coverage
 
 - Tests use an in-memory MongoDB instance (`mongodb-memory-server`), so no external DB setup is needed.
 
+### Test Utilities
+
+The test files import helpers from `test/utils/mongo.ts` to manage the in-memory MongoDB lifecycle:
+- `connect()`: Starts the in-memory database and connects the app.
+- `closeDatabase()`: Stops the database after all tests.
+- `clearDatabase()`: Clears all collections between tests, ensuring isolation.
+
+You do **not** need to run or set up MongoDB yourself when running tests. These utilities ensure a clean, isolated environment for every test run.
+
+### Reading the Test Report
+
+After running `npm test`, you will see a summary of all test suites and their results in your terminal. Example output:
+
+```
+Test Suites: 8 passed, 8 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        7.3 s
+Ran all test suites.
+```
+
+- Each test suite corresponds to a file in the `test/` directory.
+- Each test is described with a readable string (e.g., `should register an operator`).
+- If a test fails, Jest will print the error message and stack trace to help you debug.
+
+For more detailed output, run:
+
+```bash
+npm test -- --verbose
+```
+
+This will show the individual status of each test case.
+
 ---
 
 ## API Endpoints

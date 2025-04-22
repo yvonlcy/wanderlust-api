@@ -1,6 +1,13 @@
 import Router from 'koa-router'
-import { registerMember, loginMember, uploadPhoto, addFavourite, listFavourites, removeFavourite } from '../controllers/member'
-import { imageUpload } from '../middleware/imageUpload';
+import {
+  registerMember,
+  loginMember,
+  uploadPhoto,
+  addFavourite,
+  listFavourites,
+  removeFavourite,
+} from '../controllers/member'
+import { imageUpload } from '../middleware/imageUpload'
 
 const router = new Router({ prefix: '/members' })
 

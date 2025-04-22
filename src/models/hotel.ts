@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+
 export interface Hotel {
   _id?: ObjectId | string
   name: string

@@ -9,8 +9,8 @@ import swaggerUi from 'swagger-ui-koa'
 import yamljs from 'yamljs'
 import path from 'path'
 
-import { errorMiddleware } from './middleware/errorMiddleware';
-import { closeDb } from './services/db';
+import errorMiddleware from './middleware/errorMiddleware'
+import { closeDb, connectDb } from './services/db'
 
 const app = new Koa()
 const router = new Router()
@@ -29,20 +29,30 @@ const swaggerSpec = yamljs.load(path.join(__dirname, '../openapi.yaml'))
 app.use(mainRouter.routes()).use(mainRouter.allowedMethods())
 
 app.use(swaggerUi.serve)
-app.use(swaggerUi.setup(swaggerSpec, { routePrefix: '/docs', swaggerOptions: { docExpansion: 'none' } }))
+app.use(
+  swaggerUi.setup(swaggerSpec, { routePrefix: '/docs', swaggerOptions: { docExpansion: 'none' } }),
+)
+
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
-  })
+  connectDb()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`)
+      })
+    })
+    .catch((err) => {
+      console.error('Failed to connect to MongoDB:', err)
+      process.exit(1)
+    })
 }
 
 // Graceful shutdown on SIGINT
 process.on('SIGINT', async () => {
-  console.log('Received SIGINT. Closing MongoDB connection...');
-  await closeDb();
-  console.log('MongoDB connection closed. Exiting process.');
-  process.exit(0);
-});
+  console.log('Received SIGINT. Closing MongoDB connection...')
+  await closeDb()
+  console.log('MongoDB connection closed. Exiting process.')
+  process.exit(0)
+})
 
-export default app;
+export default app
