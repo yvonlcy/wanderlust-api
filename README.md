@@ -210,14 +210,6 @@ This will show each individual test case and its status.
 - Each test is described with a readable string (e.g., `should register an operator`).
 - If a test fails, Jest will print the error message and stack trace to help you debug.
 
-For more detailed output, run:
-
-```bash
-npm test -- --verbose
-```
-
-This will show the individual status of each test case.
-
 ---
 
 ## API Endpoints
