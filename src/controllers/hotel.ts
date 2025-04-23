@@ -3,50 +3,6 @@ import { getDb } from '../services/db'
 import { Hotel } from '../models/hotel'
 import { ObjectId } from 'mongodb'
 
-// GET /hotels?city=Hong%20Kong&star=5
-/**
- * @openapi
- * /hotels:
- *   get:
- *     summary: List hotels
- *     tags:
- *       - Hotels
- *     parameters:
- *       - in: query
- *         name: city
- *         schema:
- *           type: string
- *       - in: query
- *         name: star
- *         schema:
- *           type: integer
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Paginated hotel list
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 hotels:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Hotel'
- *                 total:
- *                   type: integer
- *                 page:
- *                   type: integer
- *                 limit:
- *                   type: integer
- */
 export const listHotels = async (ctx: Context) => {
   console.log('DEBUG: GET /hotels called')
   const { city, star, limit, page } = ctx.query
