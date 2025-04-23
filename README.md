@@ -1,27 +1,39 @@
 # Wanderlust Travel API
 
-A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, TypeScript, Koa, and MongoDB.
+A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, TypeScript, Koa, and MongoDB. The API is fully documented with OpenAPI and rigorously tested. Recent improvements include strict environment variable checks, safe database operations, and robust authentication on sensitive endpoints.
 
 ---
 
 ## Table of Contents
 
-- [Project Info](#project-info)
-- [Scenario](#scenario)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Environment Variables](#environment-variables)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Running the API](#running-the-api)
-- [Running Tests](#running-tests)
-- [Testing Utilities](#test-utilities)
-- [Reading the Test Report](#reading-the-test-report)
-- [API Endpoints](#api-endpoints)
-- [API Documentation](#api-documentation)
-- [Using Postman to Test](#using-postman-to-test-all-api-endpoints)
-- [Common Troubleshooting & Error Solutions](#common-troubleshooting--error-solutions)
-- [License](#license)
+- [Wanderlust Travel API](#wanderlust-travel-api)
+  - [Table of Contents](#table-of-contents)
+  - [Project Info](#project-info)
+  - [Scenario](#scenario)
+  - [Features](#features)
+  - [Project Structure](#project-structure)
+  - [Environment Variables](#environment-variables)
+  - [Tech Stack](#tech-stack)
+  - [Getting Started](#getting-started)
+  - [Running the API](#running-the-api)
+  - [Running Tests](#running-tests)
+    - [Test Utilities](#test-utilities)
+    - [Reading the Test Report](#reading-the-test-report)
+  - [API Endpoints](#api-endpoints)
+  - [API Documentation](#api-documentation)
+  - [API Documentation \& Testing](#api-documentation--testing)
+  - [Using Postman to Test All API Endpoints](#using-postman-to-test-all-api-endpoints)
+    - [1. Import the OpenAPI Spec](#1-import-the-openapi-spec)
+    - [2. Set the Base URL](#2-set-the-base-url)
+    - [3. Register and Log In](#3-register-and-log-in)
+    - [4. Authorize Requests](#4-authorize-requests)
+    - [5. Test All Endpoints](#5-test-all-endpoints)
+      - [Sample JSON Bodies for Postman](#sample-json-bodies-for-postman)
+    - [6. Explore Responses](#6-explore-responses)
+    - [7. Troubleshooting](#7-troubleshooting)
+  - [Common Troubleshooting \& Error Solutions](#common-troubleshooting--error-solutions)
+  - [License](#license)
+    - [Good luck and happy coding!](#good-luck-and-happy-coding)
 
 ---
 
@@ -30,20 +42,21 @@ A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, T
 **GitHub Repo:** [wanderlust-api](https://github.com/yvonlcy/wanderlust-api)
 
 **Purpose**  
-This project demonstrates critical awareness and technical skills in HTTP-based API design and development by building a secure, maintainable, and industry-standard RESTful API. It covers:
-- Secure RESTful API development using Node.js/TypeScript.
-- OpenAPI/Swagger documentation for all endpoints and data representations.
-- Automated endpoint tests with mock HTTP requests.
-- Commercial-grade coding, documentation, and testing practices.
-- A short demonstration video (see link below).
+This project demonstrates best practices in secure, maintainable RESTful API development using Node.js, TypeScript, Koa, and MongoDB. It features:
+- Secure JWT authentication and role-based authorization
+- OpenAPI/Swagger documentation for all endpoints
+- Automated endpoint tests (Jest + Supertest)
+- Strict environment variable checks (e.g., mandatory PORT)
+- Safe database operations (no mutation of DB objects)
+- Commercial-grade code, docs, and test coverage
 
 ---
 
 ## Scenario
 
-Wanderlust Travel is a new agency aiming to provide customers with a seamless platform to explore hotels and air tickets for their travel plans. The system includes:
-- A React SPA frontend for users.
-- A RESTful API backend for data management and integration with public hotel and flight APIs.
+Wanderlust Travel is a new agency aiming to provide a seamless platform for customers to explore hotels and air tickets. The system includes:
+- A React SPA frontend for users
+- A RESTful API backend for data management and integration with hotel/flight APIs
 
 **Suggested APIs:**
 - [Hotelbeds](https://developer.hotelbeds.com/)
@@ -53,29 +66,18 @@ Wanderlust Travel is a new agency aiming to provide customers with a seamless pl
 
 ## Features
 
-### Essential
-- Operator registration/login (with sign-up code), hotel CRUD (Create, Read, Update, Delete).
-- Public hotel browsing, search, and filtering.
-- Secure authentication/authorization (JWT).
-- OpenAPI (Swagger) documentation for all endpoints and data.
-- Automated endpoint testing with mock HTTP requests.
-- Comprehensive code and project documentation.
-- [Demo video link – to be added before submission]
-
-### Important
-- User profile photo upload.
-- Public user registration and personal favourites.
-- Messaging system between users and operator.
-
-### Useful
-- Social media integration for new listings.
-- Secure coding and best Git practices.
-- Optional: Google OAuth2 login for public users.
-
-### Nice to Have
-- External API hotel/flight data integration.
-- Hotel & Flight package services.
-- Other creative features.
+- Operator registration/login (with sign-up code)
+- Member registration/login
+- Hotel CRUD (operators only)
+- Public hotel browsing, search, and filtering
+- JWT authentication and role-based access
+- Profile photo upload (protected: only the user can upload their own photo)
+- Personal favourites for members
+- Messaging system between users and operator
+- OpenAPI (Swagger) documentation (`/docs`)
+- Automated endpoint testing (Jest + Supertest)
+- Mandatory environment variables (including `PORT`)
+- Safe DB operations (no mutation of DB objects)
 
 ---
 
@@ -90,7 +92,7 @@ Wanderlust Travel is a new agency aiming to provide customers with a seamless pl
 
 ## Environment Variables
 
-Create a `.env` file in the project root with at least:
+Create a `.env` file in the project root with **all** of the following (the API will fail fast if any are missing):
 
 ```
 JWT_SECRET=your_jwt_secret
@@ -189,12 +191,20 @@ You do **not** need to run or set up MongoDB yourself when running tests. These 
 After running `npm test`, you will see a summary of all test suites and their results in your terminal. Example output:
 
 ```
-Test Suites: 8 passed, 8 total
-Tests:       29 passed, 29 total
+Test Suites: 14 passed, 14 total
+Tests:       48 passed, 48 total
 Snapshots:   0 total
-Time:        7.3 s
+Time:        9.8 s
 Ran all test suites.
 ```
+
+- **All tests passing** means your API is functioning as expected, with authentication, hotel CRUD, messaging, and other features working and protected as intended.
+- If you see any failures (e.g. `Tests: 47 passed, 1 failed, 48 total`), Jest will show the error message and stack trace below the summary. Investigate and fix the root cause before deploying or submitting your project.
+- For more detailed output, you can run:
+  ```bash
+  npm test -- --verbose
+  ```
+This will show each individual test case and its status.
 
 - Each test suite corresponds to a file in the `test/` directory.
 - Each test is described with a readable string (e.g., `should register an operator`).
@@ -216,96 +226,27 @@ This will show the individual status of each test case.
 |--------|----------------------------------------------|---------------------------------------------|
 | POST   | /api/members/register                        | Register a new member                       |
 | POST   | /api/members/login                           | Member login                                |
-| GET    | /api/members/{id}/favourites                 | List member's favorite hotels (auth)        |
-| POST   | /api/members/{id}/favourites                 | Add a hotel to favorites (auth)             |
-| DELETE | /api/members/{id}/favourites/{hotelId}       | Remove a hotel from favorites (auth)        |
+| POST   | /api/members/refresh-token                   | Refresh JWT token for member                |
+| POST   | /api/members/:id/photo                       | Upload profile photo (auth, self only)      |
+| GET    | /api/members/:id/favourites                  | List member's favorite hotels (auth)        |
+| POST   | /api/members/:id/favourites                  | Add a hotel to favorites (auth)             |
+| DELETE | /api/members/:id/favourites/:hotelId         | Remove a hotel from favorites (auth)        |
 | POST   | /api/operators/register                      | Register a new operator (requires code)     |
 | POST   | /api/operators/login                         | Operator login                              |
+| POST   | /api/operators/refresh-token                 | Refresh JWT token for operator              |
 | GET    | /api/profile                                 | Get current user's profile (auth)           |
 | GET    | /api/hotels                                  | List all hotels                             |
 | POST   | /api/hotels                                  | Create hotel (operator only)                |
-| GET    | /api/hotels/{id}                             | Get hotel by ID                             |
-| PUT    | /api/hotels/{id}                             | Update hotel (operator only)                |
-| DELETE | /api/hotels/{id}                             | Delete hotel (operator only)                |
+| GET    | /api/hotels/:id                              | Get hotel by ID                             |
+| PUT    | /api/hotels/:id                              | Update hotel (operator only)                |
+| DELETE | /api/hotels/:id                              | Delete hotel (operator only)                |
 | POST   | /api/messages                                | Send a message (auth)                       |
 | GET    | /api/messages                                | List messages for user (auth)               |
-| POST   | /api/messages/{id}/reply                     | Reply to a message (auth)                   |
-| DELETE | /api/messages/{id}                           | Delete a message (auth)                     |
+| POST   | /api/messages/:id/reply                      | Reply to a message (auth)                   |
+| DELETE | /api/messages/:id                            | Delete a message (auth)                     |
 | GET    | /api/health                                  | Health check                                |
 
 See full docs at [`/docs`](http://localhost:3000/docs).
-
-### Example Responses
-
-#### Register Operator (POST /api/operators/register)
-**Success:**
-```json
-{
-  "id": "60c7b9c2e1d3c2a1b8c0f123",
-  "message": "Operator registered"
-}
-```
-**Error (missing signupCode):**
-```json
-{
-  "error": "Invalid signup code"
-}
-```
-
-#### Login Operator (POST /api/operators/login)
-**Success:**
-```json
-{
-  "token": "<jwt_token>"
-}
-```
-**Error (wrong password):**
-```json
-{
-  "error": "Invalid username or password"
-}
-```
-
-#### Get Profile (GET /api/profile)
-**Success:**
-```json
-{
-  "id": "60c7b9c2e1d3c2a1b8c0f123",
-  "role": "operator",
-  "username": "apitestoperator",
-  "email": "apitestoperator@hk.com"
-}
-```
-**Error (no token):**
-```json
-{
-  "error": "Authentication Error"
-}
-```
-
-#### Create Hotel (POST /api/hotels)
-**Success:**
-```json
-{
-  "id": "60c7b9c2e1d3c2a1b8c0f456",
-  "name": "Hotel Name",
-  ...
-}
-```
-**Error (unauthorized):**
-```json
-{
-  "error": "Authentication Error"
-}
-```
-
-#### Health Check (GET /api/health)
-**Success:**
-```json
-{
-  "status": "ok"
-}
-```
 
 ---
 
@@ -464,14 +405,6 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
 ---
 
 **Tip:** You can use Postman environments and variables to manage tokens and base URLs for easier repeated testing.
-
----
-
-## Submission
-
-- **Portfolio ZIP:** Only include TypeScript project code developed by you, with documentation and links (no node_modules or external code).
-- **Demo video link:** Add to this README before submission.
-- **Moodle Submission:** Upload ZIP and video link before the deadline.
 
 ---
 

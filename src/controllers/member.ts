@@ -106,6 +106,11 @@ export async function refreshToken(ctx: Context) {
 }
 
 export async function uploadPhoto(ctx: Context) {
+  // Ensure only the member can upload their own photo
+  if (!ctx.state.user || ctx.state.user.role !== 'member' || ctx.state.user.id !== ctx.params.id) {
+    ctx.throw(403, 'Forbidden: You can only upload your own photo')
+    return
+  }
   // multer adds file to ctx.request.file
   const file = ctx.request.file as {
     filename: string

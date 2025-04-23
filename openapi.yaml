@@ -3,8 +3,6 @@ info:
   title: Wanderlust Travel API
   version: 1.0.0
   description: RESTful API for hotel management & booking
-servers:
-  - url: http://localhost:3000
 components:
   securitySchemes:
     bearerAuth:
@@ -30,8 +28,116 @@ components:
 security:
   - bearerAuth: []
 paths:
-
-
+  /hotels:
+    get:
+      tags:
+        - Hotel
+      summary: Get all hotels
+      parameters:
+        - in: query
+          name: city
+          schema:
+            type: string
+        - in: query
+          name: star
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of hotels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hotel'
+    post:
+      tags:
+        - Hotel
+      summary: Create a hotel
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '400':
+          description: Invalid input
+  /hotels/{id}:
+    get:
+      tags:
+        - Hotel
+      summary: Get hotel by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Hotel found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '404':
+          description: Hotel not found
+    put:
+      tags:
+        - Hotel
+      summary: Update a hotel
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '400':
+          description: Invalid input
+        '404':
+          description: Hotel not found
+    delete:
+      tags:
+        - Hotel
+      summary: Delete a hotel
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Hotel not found
   /api/profile:
     get:
       tags:
@@ -49,67 +155,11 @@ paths:
                 properties:
                   id:
                     type: string
+                  username:
+                    type: string
+                  email:
+                    type: string
                   role:
-                    type: string
-  /api/hotels:
-    get:
-      tags:
-        - Hotel
-      summary: List hotels
-      responses:
-        '200':
-          description: List of hotels
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  hotels:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Hotel'
-                  total:
-                    type: integer
-                  page:
-                    type: integer
-                  limit:
-                    type: integer
-    post:
-      tags:
-        - Hotel
-      summary: Create hotel (operator only)
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Hotel'
-      responses:
-        '201':
-          description: Hotel created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-  /api/health:
-    get:
-      tags:
-        - Health
-      summary: Health check
-      responses:
-        '200':
-          description: API is running
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
                     type: string
 
   /api/members/register:
@@ -146,102 +196,8 @@ paths:
                     type: string
                   message:
                     type: string
-  /api/members/login:
-    post:
-      tags:
-        - Member
-      summary: Login as a member
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - username
-                - password
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-      responses:
-        '200':
-          description: JWT token and user info
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      username:
-                        type: string
-                      email:
-                        type: string
-  /api/members/{id}/favourites:
-    post:
-      tags:
-        - Member
-      summary: Add a hotel to favourites
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - hotelId
-              properties:
-                hotelId:
-                  type: string
-      responses:
-        '200':
-          description: Added to favourites
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-    get:
-      tags:
-        - Member
-      summary: List all favourite hotels of a member
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of favourite hotel IDs
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  favorites:
-                    type: array
-                    items:
-                      type: string
+
+
   /api/members/{id}/favourites/{hotelId}:
     delete:
       tags:
@@ -286,6 +242,7 @@ paths:
                 - password
                 - email
                 - agency
+                - signupCode
               properties:
                 username:
                   type: string
@@ -294,6 +251,8 @@ paths:
                 email:
                   type: string
                 agency:
+                  type: string
+                signupCode:
                   type: string
       responses:
         '201':
@@ -345,6 +304,124 @@ paths:
                         type: string
                       email:
                         type: string
+        '401':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/operators/refresh-token:
+    post:
+      tags:
+        - Operator
+      summary: Refresh operator JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh
+              properties:
+                refresh:
+                  type: string
+      responses:
+        '200':
+          description: New access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+        '400':
+          description: Invalid token type or missing refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/members/login:
+    post:
+      tags:
+        - Member
+      summary: Login as a member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT tokens and user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: object
+                    properties:
+                      access:
+                        type: string
+                      refresh:
+                        type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+        '401':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
 
   /api/hotels/{id}:
     get:

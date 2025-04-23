@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/src/index.js",
   "scripts": {
-    "docs:gen": "node -e \"import('./src/config/swagger.ts').then(m=>require('fs').writeFileSync('./openapi.json',JSON.stringify(m.swaggerSpec,null,2)))\"",
+    "docs:gen": "ts-node ./src/scripts/generateSwagger.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
