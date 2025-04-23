@@ -7,21 +7,23 @@ import { User } from '../models/user'
 import bcrypt from 'bcrypt'
 import { Context } from 'koa'
 import path from 'path'
+import { z } from 'zod'
 
-interface MemberRegisterBody {
-  username: string
-  password: string
-  email: string
-}
+const memberRegisterSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Invalid email'),
+})
 
 export async function registerMember(ctx: Context) {
-  const { username, password, email } = ctx.request.body as MemberRegisterBody
-  if (!username || !password || !email) {
+  const parseResult = memberRegisterSchema.safeParse(ctx.request.body)
+  if (!parseResult.success) {
     ctx.status = 400
     ctx.response.status = ctx.status;
-    ctx.body = { message: 'Missing required fields' }
+    ctx.body = { message: 'Validation failed', errors: parseResult.error.flatten() }
     return
   }
+  const { username, password, email } = parseResult.data
   const db = await getDb()
   const exists = await db.collection('users').findOne({ username })
   if (exists) {
@@ -40,13 +42,20 @@ export async function registerMember(ctx: Context) {
   return;
 }
 
-interface MemberLoginBody {
-  username: string
-  password: string
-}
+
+const memberLoginSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password is required'),
+})
 
 export async function loginMember(ctx: Context) {
-  const { username, password } = ctx.request.body as MemberLoginBody
+  const parseResult = memberLoginSchema.safeParse(ctx.request.body)
+  if (!parseResult.success) {
+    ctx.status = 400
+    ctx.body = { message: 'Validation failed', errors: parseResult.error.flatten() }
+    return
+  }
+  const { username, password } = parseResult.data
   const db = await getDb()
   const user = await db.collection('users').findOne({ username, role: 'member' })
   if (!user) {
