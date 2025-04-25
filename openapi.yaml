@@ -25,6 +25,37 @@ components:
           type: string
         address:
           type: string
+  responses:
+    UnauthorizedError:
+      description: Unauthorized - Invalid or missing token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthorized
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Not Found
+    BadRequestError:
+      description: Bad Request - Invalid input or parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Bad Request
 security:
   - bearerAuth: []
 paths:
@@ -196,8 +227,6 @@ paths:
                     type: string
                   message:
                     type: string
-
-
   /api/members/{id}/favourites:
     get:
       tags:
