@@ -129,42 +129,84 @@ export async function uploadPhoto(ctx: Context) {
     size: file.size,
   }
 }
-interface AddFavouriteBody {
-  hotelId: string
-}
 
 export async function addFavourite(ctx: Context) {
   const memberId = ctx.params.id as string
-  const { hotelId } = ctx.request.body as AddFavouriteBody
-  if (!hotelId) ctx.throw(400, 'Missing hotelId')
+  const hotelId = ctx.params.hotelId as string; // Read hotelId from path params
+
+  // Validate input
+  if (!hotelId) {
+    ctx.throw(400, 'Missing hotelId in path');
+  }
+  if (!ObjectId.isValid(memberId)) {
+    ctx.throw(400, 'Invalid member ID format');
+  }
+  // Note: hotelId is stored as string, no ObjectId validation needed here
+
   const db = await getDb()
-  const result = await db.collection('users').updateOne(
+  const result = await db.collection<User>('users').updateOne(
     { _id: new ObjectId(memberId), role: 'member' },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { $addToSet: { favorites: hotelId } } as any,
-  )
-  if (result.modifiedCount === 0) ctx.throw(404, 'Member not found')
-  ctx.body = { message: 'Added to favourites' }
+    { $addToSet: { favorites: hotelId } } // $addToSet handles duplicates
+  );
+
+  // Check if the member document was found
+  if (result.matchedCount === 0) {
+    ctx.throw(404, 'Member not found'); // Member truly doesn't exist
+  }
+
+  // If member was found (matchedCount > 0), the operation is successful
+  // $addToSet ensures the hotelId is in the favorites array.
+  // Return 200 OK regardless of modifiedCount for idempotency.
+  ctx.body = { message: 'Hotel added to favourites' };
 }
+
 export async function listFavourites(ctx: Context) {
   const memberId = ctx.params.id as string
-  const db = await getDb()
-  const user = await db.collection('users').findOne({ _id: new ObjectId(memberId), role: 'member' })
-  if (!user) {
-    ctx.throw(404, 'Member not found')
-    return
+  if (!ObjectId.isValid(memberId)) {
+     ctx.throw(400, 'Invalid member ID format');
   }
-  ctx.body = { favorites: user.favorites || [] }
-}
-export async function removeFavourite(ctx: Context) {
-  const memberId = ctx.params.id as string
-  const hotelId = ctx.params.hotelId as string
-  const db = await getDb()
-  const result = await db.collection('users').updateOne(
+
+  const db = await getDb();
+  const member = await db.collection<User>('users').findOne(
     { _id: new ObjectId(memberId), role: 'member' },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { $pull: { favorites: { $eq: hotelId } } } as any,
-  )
-  if (result.modifiedCount === 0) ctx.throw(404, 'Member not found or favourite not found')
-  ctx.body = { message: 'Removed from favourites' }
+    { projection: { favorites: 1 } } // Only fetch favorites
+  );
+
+  if (!member) {
+    ctx.throw(404, 'Member not found');
+  }
+
+  ctx.body = { favorites: member.favorites || [] }; // Return empty array if no favorites
+}
+
+export async function removeFavourite(ctx: Context) {
+  const memberId = ctx.params.id as string;
+  const hotelId = ctx.params.hotelId as string;
+
+  if (!hotelId) {
+    ctx.throw(400, 'Missing hotelId in path');
+  }
+  if (!ObjectId.isValid(memberId)) {
+    ctx.throw(400, 'Invalid member ID format');
+  }
+
+  const db = await getDb();
+  const result = await db.collection<User>('users').updateOne(
+    { _id: new ObjectId(memberId), role: 'member' },
+    { $pull: { favorites: hotelId } } // Use $pull to remove
+  );
+
+  // Check if the member was found
+  if (result.matchedCount === 0) {
+    ctx.throw(404, 'Member not found');
+  }
+
+  // Check if the hotel was actually removed (optional, depends on desired behavior)
+  // if (result.modifiedCount === 0) {
+  //   ctx.throw(404, 'Favourite hotel not found for this member');
+  // }
+
+  // Return 200 or 204. 200 indicates success, even if item wasn't present.
+  ctx.body = { message: 'Hotel removed from favourites' };
+  // Or ctx.status = 204; // No content
 }

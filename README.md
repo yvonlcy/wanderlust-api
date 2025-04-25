@@ -21,7 +21,7 @@ A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, T
     - [Reading the Test Report](#reading-the-test-report)
   - [API Endpoints](#api-endpoints)
   - [API Documentation](#api-documentation)
-  - [API Documentation \& Testing](#api-documentation--testing)
+  - [API Documentation & Testing](#api-documentation--testing)
   - [Using Postman to Test All API Endpoints](#using-postman-to-test-all-api-endpoints)
     - [1. Import the OpenAPI Spec](#1-import-the-openapi-spec)
     - [2. Set the Base URL](#2-set-the-base-url)
@@ -31,7 +31,7 @@ A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, T
       - [Sample JSON Bodies for Postman](#sample-json-bodies-for-postman)
     - [6. Explore Responses](#6-explore-responses)
     - [7. Troubleshooting](#7-troubleshooting)
-  - [Common Troubleshooting \& Error Solutions](#common-troubleshooting--error-solutions)
+  - [Common Troubleshooting & Error Solutions](#common-troubleshooting--error-solutions)
   - [License](#license)
     - [Good luck and happy coding!](#good-luck-and-happy-coding)
 
@@ -221,10 +221,10 @@ This will show each individual test case and its status.
 | POST   | /api/members/refresh-token                   | Refresh JWT token for member                |
 | POST   | /api/members/:id/photo                       | Upload profile photo (auth, self only)      |
 | GET    | /api/members/:id/favourites                  | List member's favorite hotels (auth)        |
-| POST   | /api/members/:id/favourites                  | Add a hotel to favorites (auth)             |
+| POST   | /api/members/:id/favourites/:hotelId         | Add a hotel to favorites (auth)             |
 | DELETE | /api/members/:id/favourites/:hotelId         | Remove a hotel from favorites (auth)        |
-| POST   | /api/operators/register                      | Register a new operator (requires code)     |
-| POST   | /api/operators/login                         | Operator login                              |
+| POST   | /api/operators/register                      | Register a new operator                     |
+| POST   | /api/operators/login                         | Login for operator                          |
 | POST   | /api/operators/refresh-token                 | Refresh JWT token for operator              |
 | GET    | /api/profile                                 | Get current user's profile (auth)           |
 | GET    | /api/hotels                                  | List all hotels                             |
@@ -344,13 +344,9 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
   }
   ```
 
-- **Add to Favorites** (`POST /api/members/{id}/favourites`): *(Requires member authentication)*
-  ```json
-  {
-    "hotelId": "<hotel_id>"
-  }
-  ```
-  Replace `<hotel_id>` with the ID of the hotel you want to favorite.
+- **Add to Favorites** (`POST /api/members/{id}/favourites/{hotelId}`): *(Requires member authentication)*
+  - No JSON body required. Send the request with the member ID and hotel ID in the URL.
+  - Example URL: `http://localhost:3000/api/members/YOUR_MEMBER_ID/favourites/TARGET_HOTEL_ID`
 
 - **Remove from Favorites** (`DELETE http://localhost:3000/api/members/{id}/favourites/{hotelId}`): *(Requires member authentication)*
   - No body required. Just send the request with the correct member and hotel IDs in the URL.
@@ -371,6 +367,91 @@ Postman is a powerful tool for testing and exploring REST APIs. Follow these ste
 ### 7. Troubleshooting
 - If you get a 401 Unauthorized error, ensure your JWT is valid and set in the Authorization tab.
 - Use the `/api/health` endpoint to check if your API server is running.
+
+---
+
+## Curl Examples
+
+Here are some `curl` examples demonstrating key API workflows (replace placeholders like `MEMBER_ID`, `OPERATOR_ID`, `HOTEL_ID`, `MESSAGE_ID`, and `YOUR_TOKEN` as needed):
+
+```bash
+# --- Health Check ---
+curl http://localhost:3000/api/health
+
+# --- Member Flow ---
+# Register Member
+curl -X POST -H "Content-Type: application/json" -d '{"username": "curltest1", "password": "password123", "email": "curl.test@example.com"}' http://localhost:3000/api/members/register
+
+# Login Member (get tokens)
+curl -X POST -H "Content-Type: application/json" -d '{"username": "curltest1", "password": "password123"}' http://localhost:3000/api/members/login
+# (Save the token from the response)
+MEMBER_TOKEN="YOUR_MEMBER_TOKEN"
+
+# Get Member Profile (Requires Token)
+curl -H "Authorization: Bearer $MEMBER_TOKEN" http://localhost:3000/api/profile
+
+# Add Hotel to Favourites (Requires Member Token)
+MEMBER_ID="YOUR_MEMBER_ID" # From registration or profile endpoint
+HOTEL_ID="TARGET_HOTEL_ID" # e.g., 67e79f8865c021330bf1afad
+curl -X POST -H "Authorization: Bearer $MEMBER_TOKEN" http://localhost:3000/api/members/$MEMBER_ID/favourites/$HOTEL_ID
+
+# List Member Favourites (Requires Member Token)
+curl -H "Authorization: Bearer $MEMBER_TOKEN" http://localhost:3000/api/members/$MEMBER_ID/favourites
+
+# Remove Hotel from Favourites (Requires Member Token)
+curl -X DELETE -H "Authorization: Bearer $MEMBER_TOKEN" http://localhost:3000/api/members/$MEMBER_ID/favourites/$HOTEL_ID
+
+# --- Operator Flow ---
+# Register Operator (Ensure SIGNUP_CODE in .env is set, e.g., WL-AGENCY-2025)
+curl -X POST -H "Content-Type: application/json" -d '{"username": "curlOperator1", "password": "opPassword123", "email": "curl.operator.1@example.com", "agency": "Curl Test Agency", "signupCode": "WL-AGENCY-2025"}' http://localhost:3000/api/operators/register
+
+# Login Operator (get tokens)
+curl -X POST -H "Content-Type: application/json" -d '{"username": "curlOperator1", "password": "opPassword123"}' http://localhost:3000/api/operators/login
+# (Save the token from the response)
+OPERATOR_TOKEN="YOUR_OPERATOR_TOKEN"
+
+# Get Operator Profile (Requires Token)
+curl -H "Authorization: Bearer $OPERATOR_TOKEN" http://localhost:3000/api/profile
+
+# --- Hotel CRUD (Operator Only) ---
+# Create Hotel
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $OPERATOR_TOKEN" -d '{"name": "Curl Test Hotel", "star": 3, "city": "Kowloon", "address": "123 Test St", "country": "HK"}' http://localhost:3000/api/hotels
+# (Save the hotel ID from the response)
+CREATED_HOTEL_ID="NEW_HOTEL_ID"
+
+# Get Hotels (Public)
+curl http://localhost:3000/api/hotels
+
+# Get Specific Hotel (Public)
+curl http://localhost:3000/api/hotels/$CREATED_HOTEL_ID
+
+# Update Hotel (Requires Operator Token)
+curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $OPERATOR_TOKEN" -d '{"name": "Curl Test Hotel Updated", "star": 4, "city": "Kowloon", "address": "123 Test St", "country": "HK"}' http://localhost:3000/api/hotels/$CREATED_HOTEL_ID
+
+# Delete Hotel (Requires Operator Token)
+curl -X DELETE -H "Authorization: Bearer $OPERATOR_TOKEN" http://localhost:3000/api/hotels/$CREATED_HOTEL_ID
+
+# --- Messaging Flow ---
+OPERATOR_ID="YOUR_OPERATOR_ID" # From operator registration or profile
+
+# Send Message (Member to Operator)
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $MEMBER_TOKEN" -d '{"fromId": "$MEMBER_ID", "toId": "$OPERATOR_ID", "content": "Hello operator, curl test message."}' http://localhost:3000/api/messages
+# (Save the message ID from the response)
+MESSAGE_ID="NEW_MESSAGE_ID"
+
+# List Messages for Member
+curl -H "Authorization: Bearer $MEMBER_TOKEN" "http://localhost:3000/api/messages?userId=$MEMBER_ID"
+
+# Reply to Message (Operator to Member)
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $OPERATOR_TOKEN" -d '{"fromId": "$OPERATOR_ID", "content": "Received your message, replying as operator."}' http://localhost:3000/api/messages/$MESSAGE_ID/reply
+
+# List Messages for Member (Verify Reply)
+curl -H "Authorization: Bearer $MEMBER_TOKEN" "http://localhost:3000/api/messages?userId=$MEMBER_ID"
+
+# Delete Message (Member)
+curl -X DELETE -H "Authorization: Bearer $MEMBER_TOKEN" http://localhost:3000/api/messages/$MESSAGE_ID
+
+```
 
 ---
 
@@ -407,4 +488,3 @@ This project is for academic assessment purposes only.
 ---
 
 ### Good luck and happy coding!
-
