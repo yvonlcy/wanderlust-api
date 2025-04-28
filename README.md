@@ -1,5 +1,9 @@
 # Wanderlust Travel API
 
+## Project Demo Video
+
+[Watch the video](https://youtu.be/hbXx9x5JaW8)
+
 A modern, secure RESTful API for Wanderlust Travel Agency, built with Node.js, TypeScript, Koa, and MongoDB. The API is fully documented with OpenAPI and rigorously tested. Recent improvements include strict environment variable checks, safe database operations, and robust authentication on sensitive endpoints.
 
 ---
